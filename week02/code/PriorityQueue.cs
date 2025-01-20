@@ -1,59 +1,63 @@
-﻿public class PriorityQueue
+﻿using System;
+using System.Collections.Generic;
+
+public class PriorityQueue
 {
-    private List<PriorityItem> _queue = new();
+    private readonly LinkedList<(string Value, int Priority)> _queue = new();
 
     /// <summary>
-    /// Add a new value to the queue with an associated priority.  The
-    /// node is always added to the back of the queue regardless of 
-    /// the priority.
+    /// Adds an item with a given priority to the queue.
     /// </summary>
-    /// <param name="value">The value</param>
-    /// <param name="priority">The priority</param>
     public void Enqueue(string value, int priority)
     {
-        var newNode = new PriorityItem(value, priority);
-        _queue.Add(newNode);
+        var newItem = (Value: value, Priority: priority);
+
+        if (_queue.Count == 0)
+        {
+            _queue.AddLast(newItem);
+        }
+        else
+        {
+            var current = _queue.First;
+            while (current != null && current.Value.Priority >= priority)
+            {
+                current = current.Next;
+            }
+
+            if (current == null)
+            {
+                _queue.AddLast(newItem);
+            }
+            else
+            {
+                _queue.AddBefore(current, newItem);
+            }
+        }
     }
 
+    /// <summary>
+    /// Removes and returns the item with the highest priority.
+    /// </summary>
     public string Dequeue()
     {
-        if (_queue.Count == 0) // Verify the queue is not empty
+        if (_queue.Count == 0)
         {
-            throw new InvalidOperationException("The queue is empty.");
+            throw new InvalidOperationException("Queue is empty.");
         }
 
-        // Find the index of the item with the highest priority to remove
-        var highPriorityIndex = 0;
-        for (int index = 1; index < _queue.Count - 1; index++)
-        {
-            if (_queue[index].Priority >= _queue[highPriorityIndex].Priority)
-                highPriorityIndex = index;
-        }
-
-        // Remove and return the item with the highest priority
-        var value = _queue[highPriorityIndex].Value;
-        return value;
+        var item = _queue.First.Value;
+        _queue.RemoveFirst();
+        return item.Value;
     }
 
     public override string ToString()
     {
-        return $"[{string.Join(", ", _queue)}]";
-    }
-}
+        var items = new List<string>();
+        foreach (var (Value, Priority) in _queue)
+        {
+            items.Add($"{Value} (Priority: {Priority})");
+        }
 
-internal class PriorityItem
-{
-    internal string Value { get; set; }
-    internal int Priority { get; set; }
-
-    internal PriorityItem(string value, int priority)
-    {
-        Value = value;
-        Priority = priority;
-    }
-
-    public override string ToString()
-    {
-        return $"{Value} (Pri:{Priority})";
+        return string.Join(", ", items);
     }
 }
