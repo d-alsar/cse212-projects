@@ -21,9 +21,29 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        var result = new List<string>();
+        var seen = new HashSet<string>();
+
+        foreach (var word in words)
+        {
+            // Skip words with identical characters (e.g., "aa")
+            if (word[0] == word[1]) continue;
+
+            var reversed = new string(new[] { word[1], word[0] });
+
+            // If the reversed word has been seen, add the pair to the result
+            if (seen.Contains(reversed))
+            {
+                result.Add($"{reversed} & {word}");
+            }
+
+            // Add the current word to the set
+            seen.Add(word);
+        }
+
+        return result.ToArray();
     }
+
 
     /// <summary>
     /// Read a census file and summarize the degrees (education)
@@ -36,13 +56,33 @@ public static class SetsAndMaps
     /// </summary>
     /// <param name="filename">The name of the file to read</param>
     /// <returns>fixed array of divisors</returns>
-    public static Dictionary<string, int> SummarizeDegrees(string filename)
+    
+        public static Dictionary<string, int> SummarizeDegrees(string filename)
     {
         var degrees = new Dictionary<string, int>();
+
+        // Read each line of the file
         foreach (var line in File.ReadLines(filename))
         {
-            var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+            // Split the line into fields based on commas
+            var fields = line.Split(',');
+
+            // Ensure the line has at least 4 fields
+            if (fields.Length >= 4)
+            {
+                // Extract the degree information from the 4th column
+                var degree = fields[3].Trim();
+
+                // Increment the count for the degree in the dictionary
+                if (degrees.ContainsKey(degree))
+                {
+                    degrees[degree]++;
+                }
+                else
+                {
+                    degrees[degree] = 1;
+                }
+            }
         }
 
         return degrees;
@@ -64,10 +104,52 @@ public static class SetsAndMaps
     /// Reminder: You can access a letter by index in a string by 
     /// using the [] notation.
     /// </summary>
-    public static bool IsAnagram(string word1, string word2)
+
+ public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+        // Normalize the strings: remove spaces and convert to lowercase
+        word1 = word1.Replace(" ", "").ToLower();
+        word2 = word2.Replace(" ", "").ToLower();
+
+        // If the lengths don't match, they can't be anagrams
+        if (word1.Length != word2.Length)
+        {
+            return false;
+        }
+
+        // Use a dictionary to count character frequencies for the first word
+        var charCounts = new Dictionary<char, int>();
+
+        foreach (var c in word1)
+        {
+            if (charCounts.ContainsKey(c))
+            {
+                charCounts[c]++;
+            }
+            else
+            {
+                charCounts[c] = 1;
+            }
+        }
+
+        // Subtract character frequencies based on the second word
+        foreach (var c in word2)
+        {
+            if (!charCounts.ContainsKey(c))
+            {
+                return false; // A character in word2 is not in word1
+            }
+
+            charCounts[c]--;
+
+            if (charCounts[c] < 0)
+            {
+                return false; // More occurrences of a character in word2 than in word1
+            }
+        }
+
+        // If all counts are zero, the words are anagrams
+        return true;
     }
 
     /// <summary>
