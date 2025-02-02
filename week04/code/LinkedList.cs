@@ -30,10 +30,26 @@ public class LinkedList : IEnumerable<int>
     /// <summary>
     /// Insert a new node at the back (i.e. the tail) of the linked list.
     /// </summary>
-    public void InsertTail(int value)
+public void InsertTail(int value)
+{
+    // Create new node
+    Node newNode = new(value);
+
+    // If the list is empty, point both head and tail to the new node.
+    if (_tail is null)
     {
-        // TODO Problem 1
+        _head = newNode;
+        _tail = newNode;
     }
+    // If the list is not empty, only the tail will be affected.
+    else
+    {
+        newNode.Prev = _tail; // Connect new node to the previous tail
+        _tail.Next = newNode; // Connect the previous tail to the new node
+        _tail = newNode; // Update the tail to point to the new node
+    }
+}
+
 
 
     /// <summary>
@@ -62,10 +78,22 @@ public class LinkedList : IEnumerable<int>
     /// <summary>
     /// Remove the last node (i.e. the tail) of the linked list.
     /// </summary>
-    public void RemoveTail()
+public void RemoveTail()
+{
+    // If the list has only one item or is empty, set head and tail to null.
+    if (_head == _tail)
     {
-        // TODO Problem 2
+        _head = null;
+        _tail = null;
     }
+    // If the list has more than one item, only the tail will be affected.
+    else if (_tail is not null)
+    {
+        _tail.Prev!.Next = null; // Disconnect the second-last node from the last node
+        _tail = _tail.Prev; // Update the tail to point to the second-last node
+    }
+}
+
 
     /// <summary>
     /// Insert 'newValue' after the first occurrence of 'value' in the linked list.
@@ -106,18 +134,57 @@ public class LinkedList : IEnumerable<int>
     /// <summary>
     /// Remove the first node that contains 'value'.
     /// </summary>
-    public void Remove(int value)
+public void Remove(int value)
+{
+    // Start searching from the head
+    Node? curr = _head;
+
+    while (curr is not null)
     {
-        // TODO Problem 3
+        if (curr.Data == value) // Use 'Data' instead of 'Value'
+        {
+            // Case 1: If the node to remove is the head
+            if (curr == _head)
+            {
+                RemoveHead();
+            }
+            // Case 2: If the node to remove is the tail
+            else if (curr == _tail)
+            {
+                RemoveTail();
+            }
+            // Case 3: If the node is in the middle
+            else
+            {
+                curr.Prev!.Next = curr.Next; // Connect previous node to next node
+                curr.Next!.Prev = curr.Prev; // Connect next node to previous node
+            }
+            return; // Stop searching once the node is removed
+        }
+        curr = curr.Next; // Move to the next node
     }
+}
+
+
 
     /// <summary>
     /// Search for all instances of 'oldValue' and replace the value to 'newValue'.
     /// </summary>
-    public void Replace(int oldValue, int newValue)
+ public void Replace(int oldValue, int newValue)
+{
+    // Start searching from the head
+    Node? curr = _head;
+
+    while (curr is not null)
     {
-        // TODO Problem 4
+        if (curr.Data == oldValue) // Check if the node's data matches oldValue
+        {
+            curr.Data = newValue; // Replace the value
+        }
+        curr = curr.Next; // Move to the next node
     }
+}
+
 
     /// <summary>
     /// Yields all values in the linked list
@@ -144,11 +211,16 @@ public class LinkedList : IEnumerable<int>
     /// <summary>
     /// Iterate backward through the Linked List
     /// </summary>
-    public IEnumerable Reverse()
+public IEnumerable<int> Reverse()
+{
+    var curr = _tail; // Start at the end since this is a backward iteration.
+    while (curr is not null)
     {
-        // TODO Problem 5
-        yield return 0; // replace this line with the correct yield return statement(s)
+        yield return curr.Data; // Provide (yield) each item to the user
+        curr = curr.Prev; // Move backward in the linked list
     }
+}
+
 
     public override string ToString()
     {
