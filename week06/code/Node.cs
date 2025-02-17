@@ -9,9 +9,13 @@ public class Node
         this.Data = data;
     }
 
-    public void Insert(int value)
+public void Insert(int value)
     {
-        // TODO Start Problem 1
+        // Ensure unique values only
+        if (value == Data)
+        {
+            return; // Ignore duplicate values
+        }
 
         if (value < Data)
         {
@@ -31,15 +35,45 @@ public class Node
         }
     }
 
-    public bool Contains(int value)
+
+ public bool Contains(int value)
     {
-        // TODO Start Problem 2
-        return false;
+        if (value == Data)
+        {
+            return true; // Value found
+        }
+        else if (value < Data && Left != null)
+        {
+            return Left.Contains(value); // Search in the left subtree
+        }
+        else if (value > Data && Right != null)
+        {
+            return Right.Contains(value); // Search in the right subtree
+        }
+        
+        return false; // Value not found
     }
 
-    public int GetHeight()
+
+public int GetHeight()
     {
-        // TODO Start Problem 4
-        return 0; // Replace this line with the correct return statement(s)
+        int leftHeight = Left?.GetHeight() ?? 0;
+        int rightHeight = Right?.GetHeight() ?? 0;
+        return 1 + Math.Max(leftHeight, rightHeight);
+    }
+
+    public void TraverseBackward(Action<int> action)
+    {
+        if (Right != null)
+        {
+            Right.TraverseBackward(action);
+        }
+
+        action(Data);
+
+        if (Left != null)
+        {
+            Left.TraverseBackward(action);
+        }
     }
 }
